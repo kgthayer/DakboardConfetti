@@ -1,1 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Tasks with Confetti</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            flex-direction: column;
+        }
+
+        #tasks-container {
+            width: 80%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        #task-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        li:hover {
+            background-color: #e0e0e0;
+            cursor: pointer;
+        }
+
+        input[type="checkbox"] {
+            margin-right: 10px;
+            width: 20px;
+            height: 20px;
+        }
+
+        .confetti-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff6347;
+            animation: confetti-animation 1.5s linear infinite;
+        }
+
+        @keyframes confetti-animation {
+            0% {
+                transform: translateY(-100px);
+            }
+            100% {
+                transform: translateY(100vh);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Google Tasks</h1>
+    <p>Manage your to-do list and enjoy some confetti when you complete a task!</p>
+
+    <div id="tasks-container">
+        <h2>Your Tasks</h2>
+        <ul id="task-list"></ul>
+    </div>
+
+    <div class="confetti-container" id="confettiContainer"></div>
+
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script>
+        const CLIENT_ID = '379243181049-qaumv2obuvhjmccuasm7gbdbs3g9m2fv.apps.googleusercontent.com'; // Replace with your actual Client ID
+        const SCOPES = 'https://www.googleapis.com/auth/tasks.readonly';
+
+        let tasksData = [];
+
+        function startApp() {
+            gapi.load('client:auth2', initAuth);
+        }
+
+        function initAuth() {
+            gapi.auth2.init({
+                client_id: CLIENT_ID,
+                scope: SCOPES
+            }).then(() => {
+                const authInstance = gapi.auth2.getAuthInstance();
+                if (authInstance.isSignedIn.get()) {
+                    loadTasks(); // Load tasks if already signed in
+                } else {
+                    authInstance.signIn().then(loadTasks).catch(handleError); // Trigger login and then load tasks
+                }
+            }).catch(handleError);
+        }
+
+        function loadTasks() {
+            gapi.client.init({
+                apiKey: 'AIzaSyCWg4x0mkdKPfgZLpOe7r5JxNLQ3eFEbgs', // Optional API key if required by your configuration
+                clientId: CLIENT_ID,
+                scope: SCOPES,
+            }).then(() => {
+                return gapi.client.load('tasks', 'v1');
+            }).then(() => {
+                return gapi.client.tasks.tasks.list({
+                    tasklist: '@default',
+                    showCompleted: true
+                });
+            }).then(function(response) {
+                tasksData = response.
 
